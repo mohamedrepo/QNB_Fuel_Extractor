@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Successful - QNB Fuel Extractor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1d2552 0%, #2d3a6e 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            max-width: 500px;
+        }
+        .success-icon {
+            font-size: 80px;
+            color: #4CAF50;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .license-box {
+            background: rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 18px;
+            letter-spacing: 2px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Payment Successful!</h1>
+        <p>Thank you for subscribing to QNB Fuel Card Extractor Pro.</p>
+
+        <div class="license-box" id="licenseKey">
+            Loading...
+        </div>
+
+        <button class="btn" onclick="copyLicense()">📋 Copy License Key</button>
+        <button class="btn" onclick="openExtension()" style="margin-left: 10px;">🚀 Open Extension</button>
+
+        <div class="instructions">
+            <strong>Important:</strong> Please save this license key. You'll need it to restore your purchase if you reinstall the extension.
+        </div>
+    </div>
+
+    <script>
+        // Get license key from storage
+        chrome.storage.local.get(['licenseKey', 'subscriptionType'], (data) => {
+            if (data.licenseKey) {
+                document.getElementById('licenseKey').textContent = data.licenseKey;
+            } else {
+                document.getElementById('licenseKey').textContent = 'License not found. Please contact support.';
+            }
+        });
+
+        function copyLicense() {
+            const licenseText = document.getElementById('licenseKey').textContent;
+            navigator.clipboard.writeText(licenseText).then(() => {
+                alert('License key copied to clipboard!');
+            });
+        }
+
+        function openExtension() {
+            chrome.runtime.sendMessage({ type: 'openPopup' });
+            window.close();
+        }
+    </script>
+</body>
+</html>

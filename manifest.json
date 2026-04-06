@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "QNB Fuel Card Extractor Pro",
+  "version": "2.0.0",
+  "description": "Extract fuel card transactions from QNB portal - Subscription Required",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "https://fuelportal.qnbalahli.com/*",
+    "https://api.stripe.com/*",
+    "https://*.paypal.com/*",
+    "https://*.paypalobjects.com/*",
+    "https://js.stripe.com/*",
+    "https://hooks.stripe.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "payment-success.html",
+        "payment-cancel.html",
+        "payment-gateway.js"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}
