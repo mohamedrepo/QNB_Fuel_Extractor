@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "QNB Fuel Extractor PRO",
+  "version": "5.2",
+  "description": "Extract, export and analyze QNB fuel transactions",
+  "permissions": ["storage", "activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "host_permissions": ["https://*/*", "http://*/*"],
+  "web_accessible_resources": [
+    {
+      "resources": ["dashboard/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}
