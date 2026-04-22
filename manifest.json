@@ -40,8 +40,7 @@
       "resources": [
         "payment-success.html",
         "payment-cancel.html",
-        "payment-gateway.js",
-        "xlsx-lib.js"
+        "payment-gateway.js"
       ],
       "matches": [
         "<all_urls>"

@@ -334,13 +334,6 @@ async function startExtraction() {
 
         await chrome.scripting.executeScript({
             target: { tabId: tab.id },
-            files: ['xlsx-lib.js']
-        });
-
-        await new Promise(resolve => setTimeout(resolve, 1000));
-
-        await chrome.scripting.executeScript({
-            target: { tabId: tab.id },
             func: runExtraction,
             args: [fromDate, toDate, extractBalance, extractPending, extractPosted]
         });
@@ -737,59 +730,91 @@ function runExtraction(fromDate, toDate, extractBalance, extractPending, extract
             const sortedPending = extractPending ? sortPendingData(allPendingData) : [];
             const sortedBalance = extractBalance ? sortBalanceData(allBalanceData) : [];
 
-            if (sortedPosted.length > 0 || sortedPending.length > 0 || sortedBalance.length > 0) {
+if (sortedPosted.length > 0 || sortedPending.length > 0 || sortedBalance.length > 0) {
                 sendMessage('log', { message: 'Generating Excel file...', logType: 'info' });
 
-                const wb = XLSX.utils.book_new();
-                const headerStyle = { fill: { fgColor: { rgb: "1d2552" } }, font: { color: { rgb: "FFFFFF" }, bold: true };
+                const postedHeaders = ['Card Number', 'Card Name', 'Online Balance', 'Transaction Date', 'Transaction Description', 'Amount', 'Type (D/C)'];
+                const pendingHeaders = ['Card Number', 'Card Name', 'Transaction Date', 'Transaction Description', 'Amount', 'Debit/Credit'];
+                const balanceHeaders = ['Card Number', 'Card Name', 'Online Balance', 'Table Balance', 'Card Ref'];
+
+                let html = '<?xml version="1.0"?><?mso-application progid="Excel.Sheet"?>';
+                html += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+                html += 'xmlns:o="urn:schemas-microsoft-com:office:office" ';
+                html += 'xmlns:x="urn:schemas-microsoft-com:office:excel" ';
+                html += 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">';
+
+                html += '<Styles>';
+                html += '<Style ss:ID="header"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1d2552" ss:Pattern="Solid"/></Style>';
+                html += '<Style ss:ID="balance"><Font ss:Bold="1" ss:Color="#1d2552"/></Style>';
+                html += '<Style ss:ID="even"><Interior ss:Color="#f2f2f2" ss:Pattern="Solid"/></Style>';
+                html += '</Styles>';
 
                 if (extractPosted && sortedPosted.length > 0) {
-                    const postedData = sortedPosted.map(d => ({
-                        'Card Number': d.card_number,
-                        'Card Name': d.card_name,
-                        'Online Balance': d.online_balance,
-                        'Transaction Date': formatDateDMY(d.transaction_date),
-                        'Transaction Description': d.transaction_description,
-                        'Amount': d.transaction_amount,
-                        'Type (D/C)': d.transaction_type
-                    }));
-                    const wsPosted = XLSX.utils.json_to_sheet(postedData);
-                    wsPosted['!cols'] = postedData[0] ? Object.keys(postedData[0]).map(() => ({ wch: 20 })) : [];
-                    XLSX.utils.book_append_sheet(wb, wsPosted, 'Posted Transactions');
+                    html += '<Worksheet ss:Name="Posted Transactions">';
+                    html += '<Table>';
+                    html += '<Row>';
+                    postedHeaders.forEach(h => html += `<Cell ss:StyleID="header"><Data ss:Type="String">${h}</Data></Cell>`);
+                    html += '</Row>';
+                    sortedPosted.forEach((d, idx) => {
+                        const style = idx % 2 === 0 ? '' : ' ss:StyleID="even"';
+                        html += `<Row${style}>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_number}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_name}</Data></Cell>`;
+                        html += `<Cell ss:StyleID="balance"><Data ss:Type="String">${d.online_balance}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${formatDateDMY(d.transaction_date)}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.transaction_description}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.transaction_amount}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.transaction_type}</Data></Cell>`;
+                        html += '</Row>';
+                    });
+                    html += '</Table></Worksheet>';
                 }
 
                 if (extractPending && sortedPending.length > 0) {
-                    const pendingData = sortedPending.map(d => ({
-                        'Card Number': d.card_number,
-                        'Card Name': d.card_name,
-                        'Transaction Date': formatDateDMY(d.transaction_date),
-                        'Transaction Description': d.transaction_description,
-                        'Amount': d.transaction_amount,
-                        'Debit/Credit': d.debit_credit
-                    }));
-                    const wsPending = XLSX.utils.json_to_sheet(pendingData);
-                    wsPending['!cols'] = pendingData[0] ? Object.keys(pendingData[0]).map(() => ({ wch: 20 })) : [];
-                    XLSX.utils.book_append_sheet(wb, wsPending, 'Pending Transactions');
+                    html += '<Worksheet ss:Name="Pending Transactions">';
+                    html += '<Table>';
+                    html += '<Row>';
+                    pendingHeaders.forEach(h => html += `<Cell ss:StyleID="header"><Data ss:Type="String">${h}</Data></Cell>`);
+                    html += '</Row>';
+                    sortedPending.forEach((d, idx) => {
+                        const style = idx % 2 === 0 ? '' : ' ss:StyleID="even"';
+                        html += `<Row${style}>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_number}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_name}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${formatDateDMY(d.transaction_date)}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.transaction_description}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.transaction_amount}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.debit_credit}</Data></Cell>`;
+                        html += '</Row>';
+                    });
+                    html += '</Table></Worksheet>';
                 }
 
                 if (extractBalance && sortedBalance.length > 0) {
-                    const balanceData = sortedBalance.map(d => ({
-                        'Card Number': d.card_number,
-                        'Card Name': d.card_name,
-                        'Online Balance': d.online_balance,
-                        'Table Balance': d.table_balance,
-                        'Card Ref': d.card_ref
-                    }));
-                    const wsBalance = XLSX.utils.json_to_sheet(balanceData);
-                    wsBalance['!cols'] = balanceData[0] ? Object.keys(balanceData[0]).map(() => ({ wch: 20 })) : [];
-                    XLSX.utils.book_append_sheet(wb, wsBalance, 'Online Balance');
+                    html += '<Worksheet ss:Name="Online Balance">';
+                    html += '<Table>';
+                    html += '<Row>';
+                    balanceHeaders.forEach(h => html += `<Cell ss:StyleID="header"><Data ss:Type="String">${h}</Data></Cell>`);
+                    html += '</Row>';
+                    sortedBalance.forEach((d, idx) => {
+                        const style = idx % 2 === 0 ? '' : ' ss:StyleID="even"';
+                        html += `<Row${style}>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_number}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_name}</Data></Cell>`;
+                        html += `<Cell ss:StyleID="balance"><Data ss:Type="String">${d.online_balance}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.table_balance}</Data></Cell>`;
+                        html += `<Cell><Data ss:Type="String">${d.card_ref}</Data></Cell>`;
+                        html += '</Row>';
+                    });
+                    html += '</Table></Worksheet>';
                 }
 
-                const xlsxData = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                const blob = new Blob([xlsxData], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                html += '</Workbook>';
+
+                const blob = new Blob([html], { type: 'application/vnd.ms-excel' });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
-                link.download = `QNB_Fuel_${fromDate.replace(/\//g,'')}_to_${toDate.replace(/\//g,'')}.xlsx`;
+                link.download = `QNB_Fuel_${fromDate.replace(/\//g,'')}_to_${toDate.replace(/\//g,'')}.xls`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
