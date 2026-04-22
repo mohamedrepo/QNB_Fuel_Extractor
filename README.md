@@ -7,11 +7,13 @@ A professional Chrome extension for extracting fuel card transactions from the Q
 ### Core Functionality
 - ✅ **Custom Date Range Selection** - Extract transactions for any date period
 - ✅ **Three Data Types**:
-  - 💰 Online Balance (real-time balance per card)
-  - ⏳ Pending Transactions (authorized but not posted)
-  - 📋 Posted Transactions (completed, sorted by Card → Type → Date)
-- ✅ **Multi-Sheet Excel Export** - Formatted output with styling
+   - 💰 Online Balance (real-time balance per card)
+   - ⏳ Pending Transactions (authorized but not posted)
+   - 📋 Posted Transactions (completed, sorted by Card → Type → Date)
+- ✅ **Modern .xlsx Export** - Office Open XML format (Excel compatible)
+- ✅ **DateTime Format** - dd/mm/yyyy hh:mm AM/PM
 - ✅ **Progress Tracking** - Real-time progress bar and statistics
+- ✅ **Background Extraction** - Runs even when popup is closed
 - ✅ **Automatic Sorting** - Smart sorting by card number, transaction type, and date
 
 ### Subscription & Payment
@@ -226,7 +228,12 @@ This extension is an independent tool and is not officially affiliated with Qata
 
 ## 🔄 Version History
 
-### v2.0.0 (Current)
+### v2.0.1 (Current)
+- ✅ Fixed extraction runs in background service worker
+- ✅ Export now uses modern .xlsx format (Office Open XML)
+- ✅ DateTime format: dd/mm/yyyy hh:mm AM/PM
+
+### v2.0.0
 - ✅ Added subscription system with trial period
 - ✅ Integrated Stripe and PayPal payments
 - ✅ Added license key management
