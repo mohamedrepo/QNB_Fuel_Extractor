@@ -332,25 +332,19 @@ async function startExtraction() {
             return;
         }
 
-        const result = await chrome.runtime.sendMessage({
-            type: 'startExtraction',
-            data: {
-                tabId: tab.id,
-                fromDate: fromDate,
-                toDate: toDate,
-                extractBalance: extractBalance,
-                extractPending: extractPending,
-                extractPosted: extractPosted
-            }
+        await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            files: ['xlsx-lib.js']
         });
 
-        if (!result.success) {
-            log('Error starting extraction: ' + result.error, 'error');
-            resetUI();
-            return;
-        }
+        await new Promise(resolve => setTimeout(resolve, 1000));
 
-        // Update last extraction date
+        await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: runExtraction,
+            args: [fromDate, toDate, extractBalance, extractPending, extractPosted]
+        });
+
         await chrome.storage.local.set({ lastExtractionDate: new Date().toISOString() });
 
     } catch (error) {
@@ -421,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // The main extraction function that runs in the page context
-function extractData(fromDate, toDate, extractBalance, extractPending, extractPosted) {
+function runExtraction(fromDate, toDate, extractBalance, extractPending, extractPosted) {
     return new Promise((resolve, reject) => {
         (async function() {
             const DELAY = 3000;
