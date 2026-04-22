@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Payment Cancelled - QNB Fuel Extractor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1d2552 0%, #2d3a6e 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            max-width: 500px;
+        }
+        .cancel-icon {
+            font-size: 80px;
+            color: #FF9800;
+            margin-bottom: 20px;
+        }
+        h1 {
+            margin-bottom: 10px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            border: none;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background: #45a049;
+        }
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            margin-left: 10px;
+        }
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="cancel-icon">⚠️</div>
+        <h1>Payment Cancelled</h1>
+        <p>Your payment was not completed. No charges were made.</p>
+        <p style="margin-top: 20px; opacity: 0.8;">
+            You can still use the free trial or try again with a different payment method.
+        </p>
+
+        <button class="btn" onclick="tryAgain()">🔄 Try Again</button>
+        <button class="btn btn-secondary" onclick="closeWindow()">❌ Close</button>
+    </div>
+
+    <script>
+        function tryAgain() {
+            chrome.runtime.sendMessage({ type: 'openPopup' });
+            window.close();
+        }
+
+        function closeWindow() {
+            window.close();
+        }
+    </script>
+</body>
+</html>
